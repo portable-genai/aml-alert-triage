@@ -1,0 +1,10 @@
+# Golden AML triage cases (obviously fictional). One row per seeded alert; the expected fields
+# are an INDEPENDENT golden oracle written from the fixtures, NEVER copied from pipeline output.
+# `expected_band` / `expected_recommendation` / `expected_typologies` are what a hand-review of
+# the transaction window concludes. `planted` is a raw identifier in the alert narrative that the
+# redact-before-audit step must mask; NRIC values must be checksum-valid or the validator will
+# not mask them.
+{"alert_id": "FCC-1001", "expected_band": "high", "expected_recommendation": "escalate_sar", "expected_typologies": ["structuring"], "planted": "S1234567D"}
+{"alert_id": "FCC-1002", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": []}
+{"alert_id": "FCC-1003", "expected_band": "critical", "expected_recommendation": "escalate_sar", "expected_typologies": ["rapid_movement", "mule_fanout"]}
+{"alert_id": "FCC-1004", "expected_band": "medium", "expected_recommendation": "request_info", "expected_typologies": ["funnel_account"]}

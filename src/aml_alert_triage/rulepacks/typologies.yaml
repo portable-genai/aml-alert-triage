@@ -1,0 +1,86 @@
+# AML typology pack (Fcc1): the detection typologies as adopter-owned CONFIG, never engine code.
+#
+# Each entry names a pure detector in `domain/typology_engine.py:DETECTORS`, supplies the
+# thresholds that detector reads, the score `uplift` when it fires, and the regulator instrument
+# the resulting hit cites. Two kinds of number live here and they are different things:
+#
+#   * The INSTRUMENTS in `citation` are real, named regulator/standard-setter publications. Each
+#     `snippet` is a short paraphrase so an investigator can find the source; nothing here is a
+#     verbatim quotation and nothing here is legal advice. `url` is deliberately omitted: an
+#     adopter points these at its own subscription or regulator links.
+#   * The THRESHOLDS in `params` and the `uplift` weights are ADOPTER-OWNED POLICY, not quoted
+#     regulatory limits. They are config with the shipped defaults equal to this reference
+#     (practices check B4), so a bank tightens its own typology policy by editing this file (or
+#     pointing `typology_pack_path` at its own), never by editing the engine.
+#
+# `threshold_minor` values are in the currency's minor units (cents). The reference threshold of
+# 1,000,000 minor units models a 10,000-unit cash-transaction reporting threshold. All data,
+# subjects and counterparties elsewhere in the repo are obviously fictional.
+
+version: "2026-08-08"
+
+packs:
+  - typology_id: structuring
+    title: "Structuring below the cash-transaction reporting threshold"
+    detector: structuring
+    uplift: 0.45
+    params:
+      threshold_minor: 1000000
+      margin_minor: 150000
+      min_count: 3
+      direction_out: 1
+    citation:
+      source_id: fatf_r20_str
+      title: "FATF Recommendation 20, Reporting of suspicious transactions"
+      snippet: >-
+        The Financial Action Task Force standard requires a financial institution that suspects
+        funds are the proceeds of crime to report promptly to the financial intelligence unit;
+        repeated transfers deliberately sized below a mandatory reporting threshold are a
+        recognised structuring indicator.
+
+  - typology_id: rapid_movement
+    title: "Rapid movement of funds (high pass-through)"
+    detector: rapid_movement
+    uplift: 0.35
+    params:
+      window_hours: 48
+      min_ratio_pct: 80
+      min_inflow_minor: 500000
+    citation:
+      source_id: mas_626_flow
+      title: "MAS Notice 626, AML/CFT: ongoing monitoring of transactions"
+      snippet: >-
+        Monetary Authority of Singapore notice to banks: transactions that are unusually large,
+        have no apparent economic purpose, or move funds in and straight back out of an account
+        warrant scrutiny and, where suspicion remains, a suspicious-transaction report.
+
+  - typology_id: funnel_account
+    title: "Funnel account (many originators, consolidated out)"
+    detector: funnel_account
+    uplift: 0.30
+    params:
+      min_originators: 5
+      min_ratio_pct: 70
+    citation:
+      source_id: fatf_ml_funnel
+      title: "FATF, Money-laundering typologies: funnel accounts"
+      snippet: >-
+        A funnel account receives many low-value deposits from geographically dispersed
+        originators and is emptied by a smaller number of consolidating withdrawals, a layering
+        pattern the standard-setter identifies with third-party money-laundering networks.
+
+  - typology_id: mule_fanout
+    title: "Mule fan-out (one inflow, many beneficiaries)"
+    detector: mule_fanout
+    uplift: 0.40
+    params:
+      min_beneficiaries: 4
+      window_hours: 24
+      min_inflow_minor: 800000
+    citation:
+      source_id: austrac_mule
+      title: "AUSTRAC, Financial crime guide: money mules"
+      snippet: >-
+        Australian Transaction Reports and Analysis Centre guidance: a single large credit
+        rapidly dispersed to multiple unrelated beneficiaries is a hallmark of money-mule
+        activity used to layer and distribute illicit proceeds.

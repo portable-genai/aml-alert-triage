@@ -1,0 +1,8 @@
+{
+  "locals": {
+    "render_region": "asia-southeast1",
+    "render_package_name": "aml_alert_triage",
+    "render_env_prefix": "AMLTRIAGE",
+    "render_catalog_id": "G1"
+  }
+}
