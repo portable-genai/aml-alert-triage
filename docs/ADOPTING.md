@@ -193,7 +193,7 @@ what is still a stub differ, so both are stated:
   not owe you. Every triage sets `requires_human_review` AND routes through `ReviewRouterPort` to
   the console over the shared `review-kit` in the same call (rule R8), with the payload
   redacted against every jurisdiction's rows before the wire and CRITICAL demanding dual control.
-  Set `HRZ_HUMAN_REVIEW_URL` and the `HRZ7_S2S_*` credentials; do not re-implement the console.
+  Set `HUMAN_REVIEW_URL` and the `HRZ7_S2S_*` credentials; do not re-implement the console.
 - **Rsk3** architecture and requirements validator: rule R6 is an intake action, not a code
   control. Record your validation reference in `COMPLIANCE.md`.
 
@@ -220,5 +220,5 @@ disposition; it neither generates the alert nor files the report.
 - [ ] Rebuilt `eval/datasets/golden_cases.jsonl` and kept the not-falsely-green property.
 - [ ] Reviewed the deploy posture (Dockerfile, Terraform, bind address,
       `INCOMPLETE_MANAGED_OPERATIONS`).
-- [ ] Set `HRZ_HUMAN_REVIEW_URL` and decided which other sibling services you integrate vs stub.
+- [ ] Set `HUMAN_REVIEW_URL` and decided which other sibling services you integrate vs stub.
 - [ ] Recorded your baseline upstream tag so you can take future fixes.

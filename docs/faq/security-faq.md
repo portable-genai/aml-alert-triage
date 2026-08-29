@@ -84,7 +84,7 @@ No literal secret material. `config/settings.yaml` carries only `${VAR:-default}
 tokens and non-secret policy numbers; `.env.example` documents the non-secret variable names and
 `.env.secrets.example` documents the secret NAMES with placeholder values. Inbound and outbound
 credentials are deliberately distinct variables: this service's own inbound `AMLTRIAGE_S2S_TOKEN`
-is not the outbound `HRZ7_S2S_TOKEN` / `HRZ7_S2S_SIGNING_KEY` it presents to the review console.
+is not the outbound `HUMAN_REVIEW_S2S_TOKEN` / `HUMAN_REVIEW_S2S_SIGNING_KEY` it presents to the review console.
 The IAP audience is read from settings at adapter construction and is never logged.
 
 ## What is the supply-chain posture?
