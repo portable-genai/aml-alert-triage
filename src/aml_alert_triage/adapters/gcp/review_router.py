@@ -1,10 +1,10 @@
-"""Managed ReviewRouterPort: submit the routed review to Hrz7 via ``review-kit``.
+"""Managed ReviewRouterPort: submit the routed review to the human-review console.
 
-Builds the review from the escalated result and submits it to the Hrz7 service intake
+Builds the review from the escalated result and submits it to the console's service intake
 (``POST /v1/service/reviews``), authenticated as a trusted service caller. The console base URL
-comes from ``review_url`` in ``config/settings.yaml`` (default ``${HRZ_HUMAN_REVIEW_URL:-}``,
-the workspace-wide name the other producers use) and the credentials from the kit's own
-``HRZ7_S2S_TOKEN`` / ``HRZ7_S2S_SIGNING_KEY``, which are the OUTBOUND pair and deliberately
+comes from ``review_url`` in ``config/settings.yaml`` (default ``${HUMAN_REVIEW_URL:-}``,
+the workspace-wide name the other producers use) and the credentials from
+``HUMAN_REVIEW_S2S_TOKEN`` / ``HUMAN_REVIEW_S2S_SIGNING_KEY``, the OUTBOUND pair, deliberately
 distinct from this service's own inbound ``AMLTRIAGE_S2S_TOKEN``.
 
 No cloud SDK is involved: the kit is pure stdlib ``urllib`` with S2S headers wire-compatible
@@ -37,10 +37,20 @@ class CloudReviewRouter:
             # caller would then treat a routed-nowhere result as reviewed.
             raise RuntimeError(
                 "review_url is not configured, so rule R8 cannot be honoured. Set "
-                "HRZ_HUMAN_REVIEW_URL (config/settings.yaml review_url) to the Hrz7 console."
+                "HUMAN_REVIEW_URL (config/settings.yaml review_url) to the Hrz7 console."
             )
         # Constructed per call so a credential rotated or cleared after start-up is seen; the
         # client refuses a plaintext non-loopback URL and a missing bearer at construction.
-        client = ReviewClient(base_url)
+        #
+        # The credential env names are passed EXPLICITLY rather than left to the kit's
+        # defaults. review-kit is a commit-pinned git dependency, so its defaults are frozen
+        # at the pinned version: relying on them would mean this repository could not rename
+        # its own environment variables without a coordinated release of the kit and a pin
+        # bump here. Naming them at the call site makes the contract this repository's own.
+        client = ReviewClient(
+            base_url,
+            token_env="HUMAN_REVIEW_S2S_TOKEN",
+            signing_key_env="HUMAN_REVIEW_S2S_SIGNING_KEY",
+        )
         review = result_to_review(result, maker=maker, tenant=tenant or self._settings.tenant)
         return client.submit(review, actor=_SERVICE_ACTOR).review_id
