@@ -193,7 +193,7 @@ what is still a stub differ, so both are stated:
   not owe you. Every triage sets `requires_human_review` AND routes through `ReviewRouterPort` to
   the console over the shared `review-kit` in the same call (rule R8), with the payload
   redacted against every jurisdiction's rows before the wire and CRITICAL demanding dual control.
-  Set `HUMAN_REVIEW_URL` and the `HRZ7_S2S_*` credentials; do not re-implement the console.
+  Set `HUMAN_REVIEW_URL` and the `HUMAN_REVIEW_S2S_*` credentials; do not re-implement the console.
 - **Rsk3** architecture and requirements validator: rule R6 is an intake action, not a code
   control. Record your validation reference in `COMPLIANCE.md`.
 
