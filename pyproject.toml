@@ -39,6 +39,12 @@ dev = [
 gcp = [
   "google-cloud-logging>=3.0",
   "google-auth>=2.0",
+  # Bound as the gcp implementation in config/settings.yaml and imported lazily by the
+  # adapters, so the modules import clean and the ports were DEAD on the managed profile.
+  # Found by the lint-gcp job, which is the first check able to see these imports at all.
+  "google-cloud-bigquery>=3.0",
+  "google-cloud-discoveryengine>=0.11",
+  "google-genai>=1.0",
 ]
 
 [project.scripts]
