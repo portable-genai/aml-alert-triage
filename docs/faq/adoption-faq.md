@@ -91,7 +91,7 @@ It is guarded from inside the offline gate. A demo step exists in exactly two pl
 `demo.STEPS` and `walkthrough.CHECKS`, and `tests/unit/test_demo_surface.py` holds the two equal,
 so a claim the demo narrates but nobody verifies cannot exist. `make demo-selftest` runs the whole
 arc headless against the real services and is its own required CI check
-(the hosted Cloud Build check), deliberately NOT folded into `make gate`, because the gate
+(the hosted GitHub Actions check), deliberately NOT folded into `make gate`, because the gate
 proves the service and must stay fast and offline. `tests/unit/test_demo_surface.py` also fails the
 gate if a script is deleted, stops importing, or stops being listed in `scripts/README.md`, so
 adding your own script means adding its row. There is no browser automation anywhere in the demo
