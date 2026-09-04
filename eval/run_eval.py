@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Evaluation gate for AML Alert Triage (Fcc1).
+"""Evaluation gate for AML Alert Triage (aml-alert-triage).
 
 Two named layers via ``--mode`` (the scaffold is ``agent_eval_kit.eval_main``):
 
 * **smoke** (default) - the offline pre-merge check CI runs on every change: it drives the real
-  triage pipeline against a golden set with SDK-free local adapters and scores its metrics.
-* **gate** - the promotion verdict from the shared Hrz4 authority (requires the ``gcp``
-  profile), via ``agent_eval_kit.PromotionGateClient``.
+  triage pipeline against a golden set with SDK-free local adapters and scores its metrics. *
+  **gate** - the promotion verdict from the shared model-quality-gate authority (requires the
+  ``gcp`` profile), via ``agent_eval_kit.PromotionGateClient``.
 
 Every metric scores against the DATASET'S OWN ``expected_*`` fields (an independent golden oracle
 written from the fixtures), never against the pipeline's own verdict, and each is proven able to
@@ -41,7 +41,8 @@ THRESHOLDS: dict[str, float] = {
     "review_safety": 1.0,
     "pii_safety": 0.99,
 }
-#: The registered Hrz4 metric bundle for this vertical (Hrz4 owns the metrics + thresholds).
+#: The registered model-quality-gate metric bundle for this vertical (model-quality-gate owns the
+#: metrics + thresholds).
 _BUNDLE = "aml-alert-triage"
 
 
@@ -176,6 +177,6 @@ if __name__ == "__main__":
             smoke=run_smoke,
             gate=run_gate,
             default_dataset=DEFAULT_DATASET,
-            description="Offline / Hrz4 evaluation gate for Fcc1.",
+            description="Offline / model-quality-gate for aml-alert-triage.",
         )
     )

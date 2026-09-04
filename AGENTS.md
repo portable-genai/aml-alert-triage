@@ -7,7 +7,7 @@ here. Read it first. This file carries only what is specific to this one.
 
 ## What this is
 
-AML Alert Triage (Fcc1): Deterministic AML alert triage: typology scoring and cited SAR narrative drafting.
+AML Alert Triage (`aml-alert-triage`): Deterministic AML alert triage: typology scoring and cited SAR narrative drafting.
 Rendered from `hex-service-template`, so it starts at reference parity rather than converging
 toward it. Package `aml_alert_triage`, environment prefix
 `AMLTRIAGE`, region `asia-southeast1`.

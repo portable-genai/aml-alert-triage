@@ -1,4 +1,4 @@
-"""FastAPI application for AML Alert Triage (Fcc1).
+"""FastAPI application for AML Alert Triage (aml-alert-triage).
 
 Import-safe (the Container is built at request time, never at import; only ``Settings`` is read
 at import, to learn which identity adapter is bound, and no adapter is constructed), identity is
@@ -287,7 +287,8 @@ def triage(
 
     The caller names an alert id; the feed and warehouse supply the rows, so the client never
     asserts the transactions scored. Rule R8: every outcome sets ``requires_human_review`` and
-    is ROUTED to the Hrz7 console here, in the same request that produced it. Setting the flag is
+    is ROUTED to the human-review-console here, in the same request that produced it. Setting the
+    flag is
     not the escalation; routing is. The maker is the verified principal, so the console records
     who originated the decision.
     """

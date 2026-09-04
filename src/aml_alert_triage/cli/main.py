@@ -16,9 +16,10 @@ from ..config import Container, build_container
 
 #: What the operator's terminal is entitled to read. The CLI runs with the DEPLOYMENT's identity,
 #: so the tenant it may read is the deployment's own, with an explicit flag to name another when
-#: one installation serves several. It is separate from the Hrz7 routing partition only because
+#: one installation serves several. It is separate from the human-review-console routing partition
+#: only because
 #: the flag already meant that; both default to the same configured value.
-_TENANT_HELP = "Tenant whose alerts to read, and the partition asserted to Hrz7."
+_TENANT_HELP = "Tenant whose alerts to read, and the partition asserted to human-review-console."
 
 
 def _tenant(args: argparse.Namespace, container: Container) -> str:

@@ -16,7 +16,7 @@ Two flags do not exist, on purpose. There is no `--cli`: the console script is n
 package (`[project.scripts]` in `pyproject.toml` binds `aml_alert_triage`), so `--package` renames
 it too and a second flag could only drift out of step. There is no `--dist`: `--resource` is one
 literal doing four jobs, the distribution name, the GitHub id in `[project.urls]`, the A2A
-agent-card name in `agent/agent_card.py`, and the Hrz4 eval bundle id `_BUNDLE` in
+agent-card name in `agent/agent_card.py`, and the `model-quality-gate` eval bundle id `_BUNDLE` in
 `eval/run_eval.py`, and they are one string so a fork's promotion record and its discovery card
 cannot disagree about which system they describe. The human decisions (region, IdP, policy numbers,
 typology packs, fixtures, eval golden set) are the checklist in

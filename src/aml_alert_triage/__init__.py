@@ -1,4 +1,4 @@
-"""AML Alert Triage (Fcc1).
+"""AML Alert Triage (aml-alert-triage).
 
 Deterministic AML alert triage: typology scoring and cited SAR narrative drafting.
 

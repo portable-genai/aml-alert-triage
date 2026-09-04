@@ -43,7 +43,7 @@ Nothing below claims a model that has been evaluated in this repo.
 - **Redaction is applied at every boundary that does carry free text (P-04).** Before the WORM
   audit write, in `domain/triage_service.py`, using `redact(..., PII_PATTERNS)` over the
   jurisdiction pattern selection in `domain/pii.py`; before the review payload leaves the process,
-  in `adapters/_review_payload.py`, against EVERY jurisdiction's rows because the Hrz7 console is a
+  in `adapters/_review_payload.py`, against EVERY jurisdiction's rows because the `human-review-console` is a
   shared sink; and before a tool result can become a model's context, in `agent/tools.py`, which
   walks the whole JSON structure rather than three named fields. Proven by
   `tests/unit/test_triage_service.py::test_pii_is_redacted_before_the_audit_write`,
@@ -78,7 +78,7 @@ Nothing below claims a model that has been evaluated in this repo.
 | `onprem` | `adapters/onprem/narration.py` | Fail-fast placeholder for a client-hosted model (P-12): raises `NotImplementedError` naming `docs/onprem-migration.md`. |
 
 The grounding half of the seam follows the same shape: `adapters/local/retrieval.py` serves a
-fixture typology-guidance corpus, `adapters/gcp/retrieval.py` is the seam for the Hrz2 governed
+fixture typology-guidance corpus, `adapters/gcp/retrieval.py` is the seam for the `enterprise-knowledge-base` governed
 knowledge base and raises today (also listed in `managed_readiness.py`), and
 `adapters/onprem/retrieval.py` refuses.
 
@@ -91,7 +91,7 @@ There is no speech, audio or OCR port in this repo. The only model-shaped seam i
   template, add the integration test that proves the response mapping, remove the entry from
   `INCOMPLETE_MANAGED_OPERATIONS` in `managed_readiness.py`, and record the exact model id here.
   Note that the single model id currently written in this repo, `gemini-3.5-flash` in
-  `eval/run_eval.py`, is a label passed to the Hrz4 `PromotionGateClient`; it names no inference
+  `eval/run_eval.py`, is a label passed to the `model-quality-gate` `PromotionGateClient`; it names no inference
   call this repo makes.
 - **Budget, rate controls and a kill switch** (P-10, P-11). None exist, because no model call
   exists: [`COMPLIANCE.md`](../COMPLIANCE.md) records P-10 and P-11 as TODO honestly. When the
@@ -99,17 +99,17 @@ There is no speech, audio or OCR port in this repo. The only model-shaped seam i
   circuit breaker, and a switch that forces deterministic-only operation. The fallback path for
   that switch already exists and is tested: the orchestrator already falls back to
   `grounded_skeleton` whenever the narrator fails.
-- **Evaluate the live model through the Hrz4 gate** (P-08, R5). The offline eval scores the
+- **Evaluate the live model through the `model-quality-gate`** (P-08, R5). The offline eval scores the
   deterministic local narrator against the golden oracle in `eval/datasets/golden_cases.jsonl`, so
   `groundedness` is currently proving the harness rather than a model. Register the bundle
-  `aml-alert-triage` and its thresholds with Hrz4, then add a managed-profile eval run
+  `aml-alert-triage` and its thresholds with `model-quality-gate`, then add a managed-profile eval run
   (`eval/run_eval.py --mode gate`) that scores real drafted narratives against the same cases.
-- **Prompt-injection screening through Hrz1** (R1). The retrieved guidance passages and, in any
+- **Prompt-injection screening through `agent-guardrail-gateway`** (R1). The retrieved guidance passages and, in any
   fork that widens the request, the alert text are untrusted input to a model. Bind a guardrail
-  port to the Hrz1 gateway at the model boundary for input screening and output filtering, failing
+  port to the `agent-guardrail-gateway` at the model boundary for input screening and output filtering, failing
   closed to the deterministic skeleton when the screen is unavailable. No `GuardrailPort` exists
   today.
-- **Route the prompt and response record to Hrz5** (R2). Spans from `adapters/gcp/tracer.py`
+- **Route the prompt and response record to `agent-observability`** (R2). Spans from `adapters/gcp/tracer.py`
   deliberately carry structural attributes only (action, actor, alert feed) and never content, so
   a managed model path needs the redacted prompt/response record to reach the shared immutable
   sink rather than only this process's WORM log.

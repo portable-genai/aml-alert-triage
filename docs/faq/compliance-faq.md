@@ -9,7 +9,7 @@ evidence column, plus the adopter-owned crosswalk), [`SPEC.md`](../../SPEC.md),
 
 No, and it cannot be configured into doing so. It is **decision support**, and every outcome
 terminates at a human disposition. `requires_human_review` is unconditionally true on every
-`TriageAssessment`, and the result is routed through `ReviewRouterPort` to the Hrz7 human-review
+`TriageAssessment`, and the result is routed through `ReviewRouterPort` to the `human-review-console` human-review
 console in the same call that produced it (dependency rule R8), including a proposed CLOSE. The
 flag alone is not the escalation: `tests/unit/test_review_routing.py` asserts the routing, and
 `test_even_a_low_band_close_is_routed` is the case that matters, because a system that only routed
@@ -55,7 +55,7 @@ inside the domain before it is attached as a citation, so no raw identifier trav
 response either. The `pii_safety` eval metric has a two-part oracle, a pack scan plus an
 independent planted-literal check that fires even if a pattern row is broken, and
 `tests/unit/test_not_falsely_green.py::test_pii_safety_can_go_red` proves it can fail. What this
-repo does NOT own is the runtime guardrail and injection defence: that is **Hrz1**, and rule R1 in
+repo does NOT own is the runtime guardrail and injection defence: that is `agent-guardrail-gateway`, and rule R1 in
 [`COMPLIANCE.md`](../../COMPLIANCE.md) records honestly that no `GuardrailPort` is bound yet.
 
 ### How is the audit trail held?
@@ -67,7 +67,7 @@ that every append writes the chain head to, and once store and anchor disagree t
 to append rather than re-anchoring, so an ordinary write cannot launder a divergence.
 `tests/unit/test_audit_anchor.py` proves both halves including the control case. The audit actor is
 the server-verified principal, never the request body. In production the enterprise WORM sink is
-**Hrz5** plus the locked Cloud Logging bucket (`infra/terraform/logging_worm.tf`, retention locked
+`agent-observability` plus the locked Cloud Logging bucket (`infra/terraform/logging_worm.tf`, retention locked
 at a six-month floor by default and irreversible once applied).
 
 ### Is data residency actually enforced, or only documented?
@@ -100,8 +100,8 @@ dataset's OWN `expected_*` oracle rather than against the pipeline's verdict:
 `recommendation_accuracy` at 0.80, `typology_recall` at 0.90, `groundedness` at 1.0,
 `review_safety` at 1.0 and `pii_safety` at 0.99. Each is proven able to go red in
 `tests/unit/test_not_falsely_green.py`. `--mode gate` is the promotion verdict and delegates to the
-sibling **Hrz4** AI-quality and model-risk gate under the bundle id `aml-alert-triage`,
-refusing to run off the managed profile. Registering that bundle and its thresholds with Hrz4 is an
+sibling `model-quality-gate` under the bundle id `aml-alert-triage`,
+refusing to run off the managed profile. Registering that bundle and its thresholds with `model-quality-gate` is an
 adopter step that [`COMPLIANCE.md`](../../COMPLIANCE.md) records as open under P-08 and R5. A fork
 must rebuild the golden set for its own typologies, or the gate measures the wrong detection
 policy.
@@ -112,15 +112,15 @@ Read the status column rather than the row count: the document deliberately dist
 **Covered** (a test fails the build if it regresses) from **Partial** (the in-repo half exists, the
 deploy-time or platform half does not) from **TODO (repo owner)** (not covered, and the row names
 what must be added). The substantive open items today are the VPC-SC and Interconnect perimeter
-(P-01), the guardrail binding (R1), the Hrz5 observability sink and Hrz3 registration (R2, R4), the
-Hrz4 bundle registration (P-08, R5), resilience and cost controls that only become meaningful once
+(P-01), the guardrail binding (R1), the `agent-observability` sink and `agent-registry` registration (R2, R4), the
+`model-quality-gate` bundle registration (P-08, R5), resilience and cost controls that only become meaningful once
 a real model call exists (P-10, P-11), and object-level tenant authorisation once this service
 gains a queryable store.
 
 One caveat worth raising with the repo owner rather than working around: the **P-05 and R3 rows
 still describe an earlier state** in which this scaffold had no retrieval port and no model call.
 Both now exist (`ports/retrieval.py`, `ports/narration.py`, bound in every profile, with the `gcp`
-retrieval binding pointed at Hrz2), so those two rows are due a refresh.
+retrieval binding pointed at `enterprise-knowledge-base`), so those two rows are due a refresh.
 [`ARCHITECTURE.md`](../../ARCHITECTURE.md) is the accurate description of the pipeline, and the
 documentation authority order in `AGENTS.md` puts it above `COMPLIANCE.md` for exactly this reason.
 

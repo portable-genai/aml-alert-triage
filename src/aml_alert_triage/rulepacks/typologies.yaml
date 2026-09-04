@@ -1,4 +1,4 @@
-# AML typology pack (Fcc1): the detection typologies as adopter-owned CONFIG, never engine code.
+# AML typology pack (aml-alert-triage): the detection typologies as adopter-owned CONFIG, never engine code.
 #
 # Each entry names a pure detector in `domain/typology_engine.py:DETECTORS`, supplies the
 # thresholds that detector reads, the score `uplift` when it fires, and the regulator instrument

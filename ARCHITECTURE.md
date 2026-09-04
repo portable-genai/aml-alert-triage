@@ -1,4 +1,4 @@
-# ARCHITECTURE: AML Alert Triage (Fcc1)
+# ARCHITECTURE: AML Alert Triage (`aml-alert-triage`)
 
 Hexagonal ports-and-adapters. A pure-stdlib domain core speaks only to ports (`typing.Protocol`s);
 adapter families implement them; one env var (`AMLTRIAGE_PROFILE`) swaps the
@@ -69,7 +69,7 @@ fetch the alert + its transaction window (raw cited rows) -> deterministic `Typo
 (score, band, close/request-info/escalate-to-SAR recommendation) -> governed retrieval (narration
 only) -> LLM drafts the SAR narrative, VALIDATED against the engine figures and discarded on
 failure for the deterministic skeleton -> redact-before-audit (P-04) -> already redacted WORM audit
-write -> **route to Hrz7 (R8)**. EVERY outcome is consequential: `requires_human_review` is always
+write -> **route to `human-review-console` (R8)**. EVERY outcome is consequential: `requires_human_review` is always
 true and every triage routes, including a proposed CLOSE. The audit actor and the review maker are
 both the verified `Principal`, never the request body. Routing happens in the same request that
 produced the result, on the API, CLI and agent surfaces alike.
@@ -83,11 +83,11 @@ the agent card advertises `triage_alert`, `draft_sar_narrative`, `list_alert_que
 |---|---|---|---|
 | `AlertFeedPort` | seeded fictional alert queue | BigQuery monitoring feed (lazy) | placeholder |
 | `WarehousePort` | seeded fictional transaction windows | BigQuery warehouse (lazy) | placeholder |
-| `RetrievalPort` | fixture typology-guidance corpus | Hrz2 governed retrieval (lazy) | placeholder |
+| `RetrievalPort` | fixture typology-guidance corpus | `enterprise-knowledge-base` governed retrieval (lazy) | placeholder |
 | `NarrationPort` | deterministic grounded narrator | Gemini on the Agent Platform (lazy) | placeholder |
 | `AuditSinkPort` | hash-chained SQLite WORM (commons) | Cloud Logging WORM (lazy) | placeholder |
 | `IdentityPort` | seeded personas (commons) | IAP assertion (lazy) | placeholder |
-| `ReviewRouterPort` | review-kit outbox (offline, inspectable) | Hrz7 service intake over S2S | placeholder |
+| `ReviewRouterPort` | review-kit outbox (offline, inspectable) | `human-review-console` service intake over S2S | placeholder |
 
 The on-prem placeholders RAISE. A review router that silently returned would convert every
 consequential result into an unreviewed one, which is worse than a missing feature.
