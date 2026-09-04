@@ -25,8 +25,8 @@ a violation rather than trusting that a green run means anything.
   dev personas, and a review-kit outbox that really enqueues rather than silently returning.
 - **`gcp`**: the managed stack, with every cloud SDK imported LAZILY inside the method so the other
   two profiles import the same modules with nothing installed. Cloud Logging WORM, IAP identity,
-  OTLP or Cloud Trace, the Hrz7 console over service-to-service auth, and the Hrz4 promotion gate
-  are wired; the BigQuery alert feed and warehouse, the Hrz2 retrieval and the Gemini narration are
+  OTLP or Cloud Trace, the `human-review-console` over service-to-service auth, and the `model-quality-gate` promotion gate
+  are wired; the BigQuery alert feed and warehouse, the `enterprise-knowledge-base` retrieval and the Gemini narration are
   still construction-only placeholders, listed by name in `managed_readiness.py`.
 - **`onprem`**: fail-fast placeholders that satisfy the same Protocols and RAISE
   `NotImplementedError` naming the migration target. That is the reversibility proof (P-12): a
@@ -99,7 +99,7 @@ audit payload are all plain JSON with no vendor envelope.
 
 Tamper-evidence and export-reload are scoped to what the local sink can prove, and
 `portability_demo.py` says so rather than overclaiming. Production tamper-evidence is the managed
-WORM sink's job: **Hrz5** plus the locked Cloud Logging bucket in `infra/terraform/logging_worm.tf`,
+WORM sink's job: `agent-observability` plus the locked Cloud Logging bucket in `infra/terraform/logging_worm.tf`,
 whose retention lock is irreversible by design. Nothing here proves the managed profile's live
 behaviour either, because proving that needs a real project, which is exactly why those tests are
 marked `integration` and deselected from the offline gate.

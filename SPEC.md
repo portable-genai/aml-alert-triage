@@ -1,4 +1,4 @@
-# SPEC: AML Alert Triage (Fcc1)
+# SPEC: AML Alert Triage (`aml-alert-triage`)
 
 Locked decisions, pinned stack, contracts. This document is the deepest authority on intent.
 
@@ -28,7 +28,7 @@ Locked decisions, pinned stack, contracts. This document is the deepest authorit
   no jurisdiction branch: a market is a pack, never a code edit.
 - **Maker-checker (P-06) and routing (R8)**: EVERY outcome is consequential decision support and
   terminates at a human disposition. Every triage sets `requires_human_review=True` AND is routed
-  through `ReviewRouterPort` to the Hrz7 console in the same request, including a proposed CLOSE:
+  through `ReviewRouterPort` to the `human-review-console` in the same request, including a proposed CLOSE:
   the system never files a SAR and never closes an alert autonomously. The flag alone is not the
   escalation. The response carries `review_ref`. The managed adapter refuses to run with no console
   configured rather than swallowing the escalation.
@@ -71,7 +71,7 @@ Locked decisions, pinned stack, contracts. This document is the deepest authorit
   resolved server-side and the resolved headers are attached afterwards. The service credential
   is read from the server environment only. Framing and CORS are allowlists that refuse a
   wildcard however it is written, and an empty allowlist denies rather than opening up.
-- **Eval**: `--mode smoke` is the offline pre-merge check; `--mode gate` is the Hrz4 promotion
+- **Eval**: `--mode smoke` is the offline pre-merge check; `--mode gate` is the `model-quality-gate` promotion
   authority. The gate fails closed.
 - **Tests**: split into `unit`, `contract` and `integration`. The offline gate runs the first
   two; every integration module is marked, and that marking is itself enforced.

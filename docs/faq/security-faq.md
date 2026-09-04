@@ -25,8 +25,7 @@ The three boundaries:
   narrative and the drafted text in the same expression that constructs the `AuditEvent`. Proven by
   `tests/unit/test_triage_service.py::test_pii_is_redacted_before_the_audit_write`.
 - **Before the review payload leaves the process.** `adapters/_review_payload.py` masks against
-  EVERY jurisdiction's rows plus the universal ones, not just this deployment's, because the Hrz7
-  console is a shared sink and a case filed in one market can still quote another market's
+  EVERY jurisdiction's rows plus the universal ones, not just this deployment's, because the `human-review-console` is a shared sink and a case filed in one market can still quote another market's
   identifier. Proven by
   `tests/unit/test_review_routing.py::test_the_payload_is_redacted_before_it_leaves_the_process`.
 - **Before a tool result can become model context.** `agent/tools.py` walks the whole JSON
@@ -108,15 +107,15 @@ reorder; only the anchor catches a truncated tail, because a truncated chain sti
 perfectly. Once store and anchor disagree the service refuses to append rather than re-anchoring,
 so an ordinary write cannot launder a divergence. `tests/unit/test_audit_anchor.py` proves both
 halves including the control case that goes undetected without an anchor. In production the
-enterprise WORM sink is **Hrz5** plus the locked Cloud Logging bucket in
+enterprise WORM sink is `agent-observability` plus the locked Cloud Logging bucket in
 `infra/terraform/logging_worm.tf`; the in-repo store is the offline stand-in.
 
 ## What is explicitly out of scope for this repo?
 
-Prompt-injection screening and output filtering (**Hrz1**, and note that this is currently NOT
+Prompt-injection screening and output filtering (`agent-guardrail-gateway`, and note that this is currently NOT
 integrated: rule R1 in [`COMPLIANCE.md`](../../COMPLIANCE.md) names it as the open half), the
-governed knowledge base (**Hrz2**), the agent registry and entitlements (**Hrz3**), the AI-quality
-and promotion gate (**Hrz4**), the enterprise WORM audit and tracing sink (**Hrz5**), and the
-human-review console with its case state and SLA clocks (**Hrz7**). This repo integrates those
+governed knowledge base (`enterprise-knowledge-base`), the agent registry and entitlements (`agent-registry`), the AI-quality
+and promotion gate (`model-quality-gate`), the enterprise WORM audit and tracing sink (`agent-observability`), and the
+human-review console with its case state and SLA clocks (`human-review-console`). This repo integrates those
 through ports rather than re-implementing them. See [features-faq.md](features-faq.md) for the full
 boundary map and which of them are wired today.

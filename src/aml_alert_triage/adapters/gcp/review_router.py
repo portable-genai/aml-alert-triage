@@ -25,7 +25,9 @@ _SERVICE_ACTOR = "aml-alert-triage"
 
 
 class CloudReviewRouter:
-    """Submit escalated results to Hrz7 (rule R8) through the shared submission client."""
+    """Submit escalated results to human-review-console (rule R8) through the shared submission
+    client.
+    """
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
@@ -37,7 +39,7 @@ class CloudReviewRouter:
             # caller would then treat a routed-nowhere result as reviewed.
             raise RuntimeError(
                 "review_url is not configured, so rule R8 cannot be honoured. Set "
-                "HUMAN_REVIEW_URL (config/settings.yaml review_url) to the Hrz7 console."
+                "HUMAN_REVIEW_URL (config/settings.yaml review_url) to the human-review-console."
             )
         # Constructed per call so a credential rotated or cleared after start-up is seen; the
         # client refuses a plaintext non-loopback URL and a missing bearer at construction.

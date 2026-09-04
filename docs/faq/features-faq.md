@@ -69,13 +69,13 @@ a fork; the state column is honest about which are wired today.
 
 | Concern | Owned by (catalog id) | G1's role, as built |
 |---|---|---|
-| Runtime guardrail: prompt-injection defence, I/O screening | **Hrz1** agent guardrail gateway | **Not integrated yet.** No `GuardrailPort` exists; rule R1 in `COMPLIANCE.md` records the open half. In-repo redaction (`domain/pii.py` over `pii-kit`) is not a substitute for it. |
-| Governed, ACL-aware knowledge base with citations | **Hrz2** enterprise knowledge base | The `gcp` binding of `RetrievalPort` (`adapters/gcp/retrieval.py`) is the seam; it raises today. The `local` profile serves a fixture typology-guidance corpus. Retrieval informs the narrative only. |
-| Agent registry, versioning, identity, entitlements | **Hrz3** agent registry | Publishes its A2A card at `/.well-known/agent-card.json`, built from the same tool table the runtime binds. Registration with Hrz3 is the adopter's step (rule R4). |
-| AI-quality, eval and model-risk promotion gate | **Hrz4** AI-quality and model-risk gate | `eval/run_eval.py --mode gate` is the client half and refuses to run off the managed profile; the bundle id is `aml-alert-triage`. The offline `--mode smoke` gate mirrors the thresholds. |
-| Observability, tracing, immutable WORM audit | **Hrz5** observability and WORM audit | `adapters/gcp/tracer.py` sends OTLP to the Hrz5 collector when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Spans carry structural attributes only. The WORM audit half is local and hash-chained today. |
-| Human review, maker-checker, case state, SLA clocks | **Hrz7** human-review and maker-checker console | **Fully wired.** Every outcome routes over the shared `review-kit` (rule R8), redacted before the wire, with dual control on CRITICAL. You wire your endpoint; you do not re-implement the console. |
-| Project intake validation | **Rsk3** architecture and requirements validator | Rule R6 is an intake action, not a code control. |
+| Runtime guardrail: prompt-injection defence, I/O screening | `agent-guardrail-gateway` agent guardrail gateway | **Not integrated yet.** No `GuardrailPort` exists; rule R1 in `COMPLIANCE.md` records the open half. In-repo redaction (`domain/pii.py` over `pii-kit`) is not a substitute for it. |
+| Governed, ACL-aware knowledge base with citations | `enterprise-knowledge-base` | The `gcp` binding of `RetrievalPort` (`adapters/gcp/retrieval.py`) is the seam; it raises today. The `local` profile serves a fixture typology-guidance corpus. Retrieval informs the narrative only. |
+| Agent registry, versioning, identity, entitlements | `agent-registry` | Publishes its A2A card at `/.well-known/agent-card.json`, built from the same tool table the runtime binds. Registration with `agent-registry` is the adopter's step (rule R4). |
+| AI-quality, eval and model-risk promotion gate | `model-quality-gate` | `eval/run_eval.py --mode gate` is the client half and refuses to run off the managed profile; the bundle id is `aml-alert-triage`. The offline `--mode smoke` gate mirrors the thresholds. |
+| Observability, tracing, immutable WORM audit | `agent-observability` and WORM audit | `adapters/gcp/tracer.py` sends OTLP to the `agent-observability` collector when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Spans carry structural attributes only. The WORM audit half is local and hash-chained today. |
+| Human review, maker-checker, case state, SLA clocks | `human-review-console` human-review and maker-checker console | **Fully wired.** Every outcome routes over the shared `review-kit` (rule R8), redacted before the wire, with dual control on CRITICAL. You wire your endpoint; you do not re-implement the console. |
+| Project intake validation | `architecture-validator` architecture and requirements validator | Rule R6 is an intake action, not a code control. |
 
 So the guardrail, the knowledge base, the registry, the eval platform, the audit sink and the
 review console are *dependencies*, not features of this repo.
@@ -83,12 +83,12 @@ review console are *dependencies*, not features of this repo.
 ### How does this relate to the other financial-crime systems in the catalog?
 
 G1 is the alert-disposition step. Adjacent systems own different points of the journey and should
-not be duplicated here: **Doc1** customer due diligence and source of wealth (the onboarding and
+not be duplicated here: `cdd-sow-research` customer due diligence and source of wealth (the onboarding and
 periodic-review side), **G2** sanctions, PEP and payment-message screening (name and message
 matching, a different engine and a different false-positive problem), **G3** scam and
 authorised-push-payment real-time interdiction (in-flight, latency-bound), **G4** account-takeover
 investigation (session and device signals), **G5** the SOC fraud-fusion copilot (cross-channel
-correlation), and **Ins1** insurance claims integrity. Check the catalog before building a
+correlation), and `claims-integrity-investigator` insurance claims integrity. Check the catalog before building a
 capability that may already have a home.
 
 ### Can I use it for a different market or a different typology set?

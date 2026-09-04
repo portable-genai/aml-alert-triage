@@ -1,4 +1,5 @@
-"""Local RetrievalPort: a deterministic fixture corpus of typology guidance (no live Hrz2).
+"""Local RetrievalPort: a deterministic fixture corpus of typology guidance (no live
+enterprise-knowledge-base).
 
 Returns cited guidance passages keyed by the typologies that fired. Retrieval informs the
 NARRATIVE only, never the score or the band, so this offline corpus changes nothing about the

@@ -1,11 +1,11 @@
 """The AML triage orchestrator: deterministic score, grounded narration, redact-before-audit, R8.
 
-The order mirrors the reference build (``complaints-review`` ``review_service.py``):
-score with the pure engine, retrieve governed guidance (narration only), draft the SAR narrative
-with the model, VALIDATE that draft against the engine figures and discard it on failure, redact
-before the audit write, and return an assessment that ALWAYS requires human review. The routing
-to Hrz7 (rule R8) happens on the calling surface (``api``/``cli``/``agent``), in the same call
-that produced the result, exactly as the template wires it.
+The order mirrors the reference build (``complaints-review`` ``review_service.py``): score with the
+pure engine, retrieve governed guidance (narration only), draft the SAR narrative with the model,
+VALIDATE that draft against the engine figures and discard it on failure, redact before the audit
+write, and return an assessment that ALWAYS requires human review. The routing to
+human-review-console (rule R8) happens on the calling surface (``api``/``cli``/``agent``), in the
+same call that produced the result, exactly as the template wires it.
 
 The consequential outputs are the engine's: this service never produces a score, a band or a
 recommendation, and the model it calls produces none either. The model only drafts prose, and a
@@ -169,7 +169,7 @@ class TriageService:
             Citation(
                 # The originating narrative, REDACTED in the domain so no raw identifier ever
                 # travels on this citation, whether it goes to the audit sink, the API caller or
-                # the outbound Hrz7 review.
+                # the outbound human-review-console review.
                 source_id=f"narrative:{alert.alert_id}",
                 title="Alert narrative",
                 snippet=redact(alert.narrative, PII_PATTERNS),

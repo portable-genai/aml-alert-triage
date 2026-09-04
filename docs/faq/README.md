@@ -1,7 +1,7 @@
 # FAQ index
 
 Answers to the questions different teams ask when evaluating, adopting, or reviewing this
-repository as a common base for AML alert-triage agents (catalog id **G1**, written `Fcc1` in this
+repository as a common base for AML alert-triage agents (catalog id **G1**, written `aml-alert-triage` in this
 repo's own document headers). Each file is written for a specific audience; skim the one that
 matches your role.
 

@@ -1,6 +1,6 @@
 # Adopting this repo as your base
 
-This repository (catalog id **G1**, AML Alert Triage, carried as `Fcc1` in this repo's own
+This repository (catalog id **G1**, AML Alert Triage, carried as `aml-alert-triage` in this repo's own
 document headers) is a **common base** that a bank, a payments firm or another regulated
 institution forks to build its own **AML alert triage service**: it takes a transaction-monitoring
 alert, scores its transaction window against typology packs with a pure deterministic engine,
@@ -37,7 +37,7 @@ imports a web framework or a cloud SDK, in either module.
 
 If your product is another financial-crime investigation gate (sanctions disposition, fraud case
 triage, claims integrity), most of the hexagon, the three profiles, the deterministic-score
-pattern, the redact-before-audit rule, the groundedness check and the Hrz7 review routing transfer
+pattern, the redact-before-audit rule, the groundedness check and the `human-review-console` review routing transfer
 directly. You replace the detectors and the artifact models, and you retune the policy numbers.
 
 ## 2. Core-vs-adopter-owned files (so upstream merges stay mechanical)
@@ -87,7 +87,7 @@ Three things about the flags. There is deliberately **no `--cli` flag**: the con
 named after the package, so `--package` renames it too and a second flag could only drift out of
 step. There is deliberately **no `--dist` flag**: `--resource` is one literal doing four jobs at
 once, the distribution name in `pyproject.toml`, the GitHub id in `[project.urls]`, the A2A
-agent-card name in `agent/agent_card.py`, and the Hrz4 eval bundle id (`_BUNDLE` in
+agent-card name in `agent/agent_card.py`, and the `model-quality-gate` eval bundle id (`_BUNDLE` in
 `eval/run_eval.py`), and they are the same string on purpose so a fork's promotion record and its
 discovery card cannot disagree about which system they describe. `--name-prefix` is optional and
 is rewritten only inside its own variable block in `infra/terraform/variables.tf`, because a
@@ -170,37 +170,37 @@ owned by sibling platform services, and you should integrate rather than rebuild
 [`faq/features-faq.md`](faq/features-faq.md) for the full map). What is honestly wired today and
 what is still a stub differ, so both are stated:
 
-- **Hrz1** guardrail gateway: **not integrated yet.** Redaction is in place at every boundary
+- `agent-guardrail-gateway`: **not integrated yet.** Redaction is in place at every boundary
   (`domain/pii.py` plus `pii-kit`), but there is no `GuardrailPort` and no injection screening.
   Rule R1 in [`COMPLIANCE.md`](../COMPLIANCE.md) records that as the open half. Bind it, do not
   write your own screener.
-- **Hrz2** governed knowledge base: the `gcp` binding of `RetrievalPort`
-  (`adapters/gcp/retrieval.py`) is the seam for Hrz2's governed corpus; it raises today and is
+- `enterprise-knowledge-base` governed knowledge base: the `gcp` binding of `RetrievalPort`
+  (`adapters/gcp/retrieval.py`) is the seam for `enterprise-knowledge-base`'s governed corpus; it raises today and is
   listed in `managed_readiness.py`. The `local` profile serves a fixture typology-guidance corpus.
   Retrieval informs the NARRATIVE only and never the score.
-- **Hrz3** agent registry: this agent builds its A2A card from the same tool table the runtime
+- `agent-registry`: this agent builds its A2A card from the same tool table the runtime
   binds and serves it at `/.well-known/agent-card.json` (`agent/agent_card.py`). Registering the
-  card and taking the agent's identity and entitlements from Hrz3 is your step.
-- **Hrz4** AI-quality and model-risk gate: `eval/run_eval.py --mode gate` is the client half, it
+  card and taking the agent's identity and entitlements from `agent-registry` is your step.
+- `model-quality-gate`: `eval/run_eval.py --mode gate` is the client half, it
   refuses to run off the managed profile, and it names the bundle `aml-alert-triage` at
-  `AMLTRIAGE_QUALITY_URL`. Registering that bundle and its thresholds with Hrz4 is your step; the
+  `AMLTRIAGE_QUALITY_URL`. Registering that bundle and its thresholds with `model-quality-gate` is your step; the
   offline `--mode smoke` gate mirrors them.
-- **Hrz5** observability and immutable WORM audit: `adapters/gcp/tracer.py` sends OTLP to the
-  Hrz5 collector when `OTEL_EXPORTER_OTLP_ENDPOINT` is set and to Cloud Trace when it is not.
+- `agent-observability` and immutable WORM audit: `adapters/gcp/tracer.py` sends OTLP to the
+  `agent-observability` collector when `OTEL_EXPORTER_OTLP_ENDPOINT` is set and to Cloud Trace when it is not.
   Spans carry structural attributes only, never alert content. The WORM audit half is local and
   hash-chained today (`adapters/local/audit.py`); pointing it at the shared sink is your step.
-- **Hrz7** human-review and maker-checker console: fully wired, and the one rule this repo does
+- `human-review-console` human-review and maker-checker console: fully wired, and the one rule this repo does
   not owe you. Every triage sets `requires_human_review` AND routes through `ReviewRouterPort` to
   the console over the shared `review-kit` in the same call (rule R8), with the payload
   redacted against every jurisdiction's rows before the wire and CRITICAL demanding dual control.
   Set `HUMAN_REVIEW_URL` and the `HUMAN_REVIEW_S2S_*` credentials; do not re-implement the console.
-- **Rsk3** architecture and requirements validator: rule R6 is an intake action, not a code
+- `architecture-validator` architecture and requirements validator: rule R6 is an intake action, not a code
   control. Record your validation reference in `COMPLIANCE.md`.
 
 Adjacent financial-crime verticals in the same catalog own different points of the journey and
-should not be rebuilt here: **Doc1** customer due diligence and source of wealth, **G2** sanctions,
+should not be rebuilt here: `cdd-sow-research` customer due diligence and source of wealth, **G2** sanctions,
 PEP and payment-message screening, **G3** scam and authorised-push-payment real-time interdiction,
-**G4** account-takeover investigation, **G5** the SOC fraud-fusion copilot, and **Ins1** insurance
+**G4** account-takeover investigation, **G5** the SOC fraud-fusion copilot, and `claims-integrity-investigator` insurance
 claims integrity. G1 starts at a monitoring alert that already exists and ends at a human
 disposition; it neither generates the alert nor files the report.
 

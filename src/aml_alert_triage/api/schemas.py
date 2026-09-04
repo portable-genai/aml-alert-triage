@@ -53,7 +53,8 @@ class TriageResponse(BaseModel):
     recommendation: str
     narrative: str
     requires_human_review: bool
-    #: Where the escalation WENT (rule R8): the Hrz7 review id, or the local queue reference.
+    #: Where the escalation WENT (rule R8): the human-review-console review id, or the local queue
+    #: reference.
     #: Every outcome in this vertical routes, so this is never empty on a completed triage.
     review_ref: str = ""
     typology_hits: list[TypologyHitModel] = []
