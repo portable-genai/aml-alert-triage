@@ -146,6 +146,207 @@ def _funnel_window() -> TransactionWindow:
     )
 
 
+# --------------------------------------------------------------------------------------- #
+# The suppression corpus. Alerts a hand-review says should CLOSE.
+#
+# This is the eval that carries the whole business case and there was no corpus for it. The
+# pitch for alert triage is not "it finds the structuring case", which a rule already did; it is
+# "it closes the ninety-odd alerts that should never have reached an investigator". Nothing
+# measured that, because the golden set held one clean alert against three that escalate, and a
+# false-positive rate over one negative is not a rate.
+#
+# Each window below is a benign pattern a monitoring rule genuinely fires on, and each is benign
+# for a DIFFERENT reason, because a suppression metric over one shape of clean alert proves only
+# that the engine can close that shape. All parties are fictional; amounts are in minor units.
+# --------------------------------------------------------------------------------------- #
+def _payroll_window() -> TransactionWindow:
+    """A monthly salary run: many small identical outflows to unrelated payees, on one day."""
+    subject = "Harbourfront Marine Services (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2001-in", _t(1, 9), 4_500_000, "SGD", "in", "Client Escrow (FICTIONAL)", "wire", "SG"
+        ),
+        *tuple(
+            Transaction(
+                f"T-2001-s{index}",
+                _t(2, 9),
+                320_000,
+                "SGD",
+                "out",
+                f"Employee {index} (FICTIONAL)",
+                "giro",
+                "SG",
+            )
+            for index in range(1, 9)
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
+def _supplier_settlement_window() -> TransactionWindow:
+    """Regular settlement to two long-standing suppliers, same counterparties every month."""
+    subject = "Kestrel Provisions Pte Ltd (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2002-a", _t(5, 10), 900_000, "SGD", "in", "Retail Receipts (FICTIONAL)", "giro", "SG"
+        ),
+        Transaction(
+            "T-2002-b", _t(8, 11), 400_000, "SGD", "out", "Dockside Foods (FICTIONAL)", "giro", "SG"
+        ),
+        Transaction(
+            "T-2002-c", _t(9, 11), 350_000, "SGD", "out", "Dockside Foods (FICTIONAL)", "giro", "SG"
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
+def _loan_repayment_window() -> TransactionWindow:
+    """Round-number outflows on the same day each month: a scheduled loan repayment."""
+    subject = "Tamarind Property Holdings (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2003-a", _t(3, 9), 2_000_000, "SGD", "in", "Rental Income (FICTIONAL)", "giro", "SG"
+        ),
+        Transaction(
+            "T-2003-b", _t(4, 9), 1_500_000, "SGD", "out", "Bank Loan Account", "giro", "SG"
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
+def _intragroup_sweep_window() -> TransactionWindow:
+    """A treasury sweep between two accounts of the same group: one counterparty, both ways."""
+    subject = "Northwind Group Treasury (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2004-a",
+            _t(6, 17),
+            3_000_000,
+            "SGD",
+            "in",
+            "Northwind Operating Co (FICTIONAL)",
+            "wire",
+            "SG",
+        ),
+        Transaction(
+            "T-2004-b",
+            _t(7, 9),
+            3_000_000,
+            "SGD",
+            "out",
+            "Northwind Operating Co (FICTIONAL)",
+            "wire",
+            "SG",
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
+def _seasonal_spike_window() -> TransactionWindow:
+    """Turnover well above the account's norm, from the account's usual customers."""
+    subject = "Lantern Festival Foods (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2005-a",
+            _t(10, 10),
+            1_200_000,
+            "SGD",
+            "in",
+            "Marketplace Co (FICTIONAL)",
+            "giro",
+            "SG",
+        ),
+        Transaction(
+            "T-2005-b",
+            _t(11, 10),
+            1_400_000,
+            "SGD",
+            "in",
+            "Marketplace Co (FICTIONAL)",
+            "giro",
+            "SG",
+        ),
+        Transaction(
+            "T-2005-c",
+            _t(12, 15),
+            900_000,
+            "SGD",
+            "out",
+            "Dockside Foods (FICTIONAL)",
+            "giro",
+            "SG",
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
+def _single_large_receipt_window() -> TransactionWindow:
+    """One large inbound credit that stays put. The size is the only unusual thing about it."""
+    subject = "Selat Marine Engineering (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2006-a",
+            _t(13, 11),
+            8_000_000,
+            "SGD",
+            "in",
+            "Shipyard Buyer (FICTIONAL)",
+            "wire",
+            "SG",
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
+def _dormant_reactivation_window() -> TransactionWindow:
+    """An account that had been quiet transacts twice with a known counterparty."""
+    subject = "Ivory Gate Consulting (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2007-a",
+            _t(15, 14),
+            250_000,
+            "SGD",
+            "in",
+            "Client Retainer (FICTIONAL)",
+            "giro",
+            "SG",
+        ),
+        Transaction(
+            "T-2007-b",
+            _t(20, 14),
+            180_000,
+            "SGD",
+            "out",
+            "Office Landlord (FICTIONAL)",
+            "giro",
+            "SG",
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
+def _tax_payment_window() -> TransactionWindow:
+    """A single large outflow to a government body, funded from the operating balance."""
+    subject = "Bluewater Precision Tools (FICTIONAL)"
+    txns = (
+        Transaction(
+            "T-2008-a",
+            _t(18, 9),
+            2_500_000,
+            "SGD",
+            "in",
+            "Trade Receipts (FICTIONAL)",
+            "giro",
+            "SG",
+        ),
+        Transaction(
+            "T-2008-b", _t(21, 9), 1_100_000, "SGD", "out", "Revenue Authority", "giro", "SG"
+        ),
+    )
+    return TransactionWindow(subject=subject, as_of=_AS_OF, transactions=txns, source_id=_WAREHOUSE)
+
+
 _ALERTS: tuple[Alert, ...] = (
     Alert(
         alert_id="FCC-1001",
@@ -195,6 +396,79 @@ _ALERTS: tuple[Alert, ...] = (
         source_id=_FEED,
         tenant=FIXTURE_TENANT,
         window=_funnel_window(),
+    ),
+    # ---- the suppression corpus: alerts a hand-review says should CLOSE --------------------
+    Alert(
+        alert_id="FCC-2001",
+        subject="Harbourfront Marine Services (FICTIONAL)",
+        narrative="Fan-out rule fired on the monthly salary run to eight employees.",
+        opened=date(2026, 7, 3),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_payroll_window(),
+    ),
+    Alert(
+        alert_id="FCC-2002",
+        subject="Kestrel Provisions Pte Ltd (FICTIONAL)",
+        narrative="Velocity rule fired on two settlements to the same long-standing supplier.",
+        opened=date(2026, 7, 9),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_supplier_settlement_window(),
+    ),
+    Alert(
+        alert_id="FCC-2003",
+        subject="Tamarind Property Holdings (FICTIONAL)",
+        narrative="Round-value rule fired on the scheduled monthly loan repayment.",
+        opened=date(2026, 7, 5),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_loan_repayment_window(),
+    ),
+    Alert(
+        alert_id="FCC-2004",
+        subject="Northwind Group Treasury (FICTIONAL)",
+        narrative="Pass-through rule fired on an intra-group treasury sweep, returned next day.",
+        opened=date(2026, 7, 8),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_intragroup_sweep_window(),
+    ),
+    Alert(
+        alert_id="FCC-2005",
+        subject="Lantern Festival Foods (FICTIONAL)",
+        narrative="Turnover-deviation rule fired on a seasonal spike from the usual customers.",
+        opened=date(2026, 7, 13),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_seasonal_spike_window(),
+    ),
+    Alert(
+        alert_id="FCC-2006",
+        subject="Selat Marine Engineering (FICTIONAL)",
+        narrative="Large-value rule fired on a single inbound credit that was not moved on.",
+        opened=date(2026, 7, 14),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_single_large_receipt_window(),
+    ),
+    Alert(
+        alert_id="FCC-2007",
+        subject="Ivory Gate Consulting (FICTIONAL)",
+        narrative="Dormancy rule fired when a quiet account transacted with a known counterparty.",
+        opened=date(2026, 7, 16),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_dormant_reactivation_window(),
+    ),
+    Alert(
+        alert_id="FCC-2008",
+        subject="Bluewater Precision Tools (FICTIONAL)",
+        narrative="Large-value rule fired on a single outflow to a government body.",
+        opened=date(2026, 7, 22),
+        source_id=_FEED,
+        tenant=FIXTURE_TENANT,
+        window=_tax_payment_window(),
     ),
 )
 

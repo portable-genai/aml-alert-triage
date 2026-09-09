@@ -1,0 +1,52 @@
+# Scored by: eval/run_eval.py over the golden alerts a hand-review marked `should_close`.
+#
+# THIS is the metric that carries the business case, and until now there was no corpus for it.
+# The pitch for alert triage is not "it finds the structuring case", which the monitoring rule
+# already did; it is "it closes the alerts that should never have reached an investigator". The
+# golden set held ONE clean alert against three that escalate, and a false-positive rate over one
+# negative is not a rate: it is an anecdote with a percentage sign.
+#
+# 0.75 is a RECORDED BASELINE, not an accepted quality level, and the distinction is the whole
+# reason the number is written down here rather than chosen to be comfortable. The engine closes
+# six of the eight benign patterns. Two it does not, and both fail for the same underlying
+# reason, which is worth more than the number:
+#
+#   FCC-2001  a monthly salary run to eight employees fires the fan-out rule. A salary run is
+#             structurally identical to a mule fan-out in transaction data alone.
+#   FCC-2004  an intra-group treasury sweep, out and back to the SAME counterparty next day,
+#             fires the rapid-movement rule. Layering and a treasury sweep differ by whether the
+#             counterparty is inside the same legal group.
+#
+# Both need COUNTERPARTY CONTEXT the transaction window does not carry: a payee role, and a group
+# membership. That is a product change, not a threshold change, and the target below is what this
+# metric should read once it lands. Until then the bar holds the line at where the engine is, so
+# a regression is caught even though the gap is not yet closed.
+metric: suppression_rate
+description: >
+  Share of the alerts a hand-review marked as should-close that the engine actually recommends
+  closing. The false-positive rate, from the investigator's side.
+threshold: 0.75
+target: 1.0
+applies_to:
+  - TriageResult.recommendation
+criteria:
+  - id: closes_what_should_close
+    description: The engine recommends `close` for an alert a reviewer would close.
+    weight: 1.0
+denominator:
+  # A rate over the should-close alerts, of which the corpus now carries eight. A 0.75 bar
+  # tolerates one miss over four, so eight supports it; ONE clean alert, which is what the corpus
+  # held before, supports nothing at all.
+  kind: rate
+  over: golden alerts marked should_close
+known_gaps:
+  - id: FCC-2001
+    pattern: monthly salary run to eight employees
+    needs: payee-role context, to tell a salary run from a mule fan-out
+  - id: FCC-2004
+    pattern: intra-group treasury sweep returned next day
+    needs: group-membership context, to tell a sweep from pass-through layering
+direction: maximize
+scoring:
+  scale: [0.0, 1.0]
+  pass_if: "score >= threshold"

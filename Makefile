@@ -55,11 +55,17 @@ test-integration:
 eval:
 	python eval/run_eval.py
 
+evals-doc:
+	python scripts/render_evals_doc.py
+
+evals-doc-check:
+	python scripts/render_evals_doc.py --check
+
 # The full OFFLINE gate. It is deliberately network-free, so it runs on a plane and in a
 # no-egress environment; the dependency audit needs a vulnerability feed and therefore lives in
 # `make audit` locally and in the hard-gate workflow's supply-chain job, where it is a HARD
 # failure, not an advisory one.
-gate: lint test eval
+gate: lint test eval evals-doc-check
 
 # The supply-chain half of the gate (needs network). CI runs the same two commands.
 audit:

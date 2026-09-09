@@ -22,7 +22,15 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from agent_eval_kit import EvalMetricResult, EvalReport, PromotionGateClient, eval_main
+from agent_eval_kit import (
+    EvalMetricResult,
+    EvalReport,
+    PromotionGateClient,
+    assert_denominator_supports,
+    dataset_digest,
+    eval_main,
+    load_rubrics,
+)
 from pii_kit import pack_leak
 
 from aml_alert_triage.adapters.local._fixtures import FIXTURE_TENANT
@@ -34,13 +42,23 @@ from aml_alert_triage.domain.pii import PII_PATTERNS
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DATASET = _REPO_ROOT / "eval" / "datasets" / "golden_cases.jsonl"
 
-THRESHOLDS: dict[str, float] = {
-    "recommendation_accuracy": 0.80,
-    "typology_recall": 0.90,
-    "groundedness": 1.0,
-    "review_safety": 1.0,
-    "pii_safety": 0.99,
-}
+#: Where every bar lives. Not a dict here: a threshold written as a Python literal carries no
+#: argument, so a reviewer can read that suppression must clear 0.75 and cannot read that 0.75 is
+#: a RECORDED BASELINE naming two patterns the engine cannot yet close. This repository had no
+#: rubric directory at all; it does now, and `agent_eval_kit.load_rubrics` reads it.
+RUBRICS = Path(__file__).resolve().parent / "rubrics"
+THRESHOLDS: dict[str, float] = load_rubrics(RUBRICS).thresholds()
+
+#: The metrics this runner scores, in report order. Named so `assert_covers` can compare them
+#: with the rubric set in BOTH directions.
+SCORED: tuple[str, ...] = (
+    "recommendation_accuracy",
+    "suppression_rate",
+    "typology_recall",
+    "groundedness",
+    "review_safety",
+    "pii_safety",
+)
 #: The registered model-quality-gate metric bundle for this vertical (model-quality-gate owns the
 #: metrics + thresholds).
 _BUNDLE = "aml-alert-triage"
@@ -96,12 +114,18 @@ def pii_safety(surfaces: Sequence[str], planted: Sequence[str]) -> float:
 
 
 def run_smoke(dataset: Path) -> EvalReport:
+    # The rubrics and the scored set must agree in BOTH directions before anything is scored.
+    load_rubrics(RUBRICS).assert_covers(SCORED)
     cases = _load(dataset)
     container = build_container(Settings(profile="local", audit_path=":memory:"))
     service = container.triage_service()
     audit = container.audit
 
     recommendation: list[float] = []
+    # The suppression corpus, scored separately: the share of alerts a hand-review says should
+    # close that the engine actually closes. This is the metric that carries the business case
+    # and it is only meaningful over a real denominator, which the corpus now has.
+    suppression: list[float] = []
     typology_recall: list[float] = []
     groundedness: list[float] = []
     review_safety: list[float] = []
@@ -114,6 +138,9 @@ def run_smoke(dataset: Path) -> EvalReport:
         recommendation.append(
             1.0 if result.recommendation.value == case["expected_recommendation"] else 0.0
         )
+
+        if case.get("should_close"):
+            suppression.append(1.0 if result.recommendation.value == "close" else 0.0)
 
         # typology_recall: every expected typology must have fired (oracle labels from fixtures).
         expected = set(case.get("expected_typologies", []))  # type: ignore[arg-type]
@@ -144,6 +171,9 @@ def run_smoke(dataset: Path) -> EvalReport:
             THRESHOLDS["recommendation_accuracy"],
         ),
         EvalMetricResult.scored(
+            "suppression_rate", _mean(suppression), THRESHOLDS["suppression_rate"]
+        ),
+        EvalMetricResult.scored(
             "typology_recall", _mean(typology_recall), THRESHOLDS["typology_recall"]
         ),
         EvalMetricResult.scored("groundedness", _mean(groundedness), THRESHOLDS["groundedness"]),
@@ -152,7 +182,28 @@ def run_smoke(dataset: Path) -> EvalReport:
             "pii_safety", pii_safety(surfaces, planted), THRESHOLDS["pii_safety"]
         ),
     )
-    return EvalReport(dataset=str(dataset), results=results, n_examples=len(cases))
+    # The corpus must be able to express every bar that claims a rate, against what actually
+    # divides it. suppression_rate is a fraction over the should-close alerts, of which there are
+    # eight; there was ONE, and a false-positive rate over one negative is not a rate.
+    assert_denominator_supports(
+        THRESHOLDS["suppression_rate"], len(suppression), metric="suppression_rate"
+    )
+    assert_denominator_supports(
+        THRESHOLDS["recommendation_accuracy"], len(cases), metric="recommendation_accuracy"
+    )
+    if len(suppression) < 5:
+        raise SystemExit(
+            f"{dataset}: only {len(suppression)} should-close alert(s). Suppression is the "
+            "metric that carries this service's business case, and a false-positive rate over a "
+            "handful of negatives is an anecdote with a percentage sign."
+        )
+    return EvalReport(
+        dataset=str(dataset),
+        results=results,
+        n_examples=len(cases),
+        dataset_digest=dataset_digest(dataset),
+        evaluator="offline heuristic (no cloud creds)",
+    )
 
 
 def run_gate(dataset: Path) -> tuple[EvalReport, bool]:
