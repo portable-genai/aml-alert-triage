@@ -1,0 +1,23 @@
+# Scored by: eval/run_eval.py::ungrounded_numbers over the narrative the engine writes.
+#
+# Exactly 1.0, and the reason is specific rather than general. The narrative accompanies an
+# escalation that may become a suspicious-activity report, and a figure in it that the engine did
+# not compute is a number an investigator files with a regulator on the system's authority. There
+# is no acceptable rate of that, and the check is structural: every number in the prose must
+# appear among the values the engine actually produced.
+metric: groundedness
+description: >
+  The triage narrative states no number the engine did not compute.
+threshold: 1.0
+applies_to:
+  - TriageResult.narrative
+criteria:
+  - id: no_ungrounded_number
+    description: Every figure in the narrative is one the engine computed.
+    weight: 1.0
+denominator:
+  kind: all-or-nothing
+direction: maximize
+scoring:
+  scale: [0.0, 1.0]
+  pass_if: "score >= threshold"

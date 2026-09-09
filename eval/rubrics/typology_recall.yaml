@@ -1,0 +1,22 @@
+# Scored by: eval/run_eval.py against the typologies a hand-review recorded for each alert.
+#
+# A recall metric, and deliberately not a precision one: an extra typology hit on an alert that
+# is escalating anyway costs an investigator a paragraph, while a missed typology is the reason
+# the escalation says the wrong thing to a regulator.
+metric: typology_recall
+description: >
+  Every typology a reviewer recorded for an alert is fired by the engine.
+threshold: 0.90
+applies_to:
+  - TriageResult.typology_hits
+criteria:
+  - id: every_expected_typology_fires
+    description: Each expected typology id appears among the hits.
+    weight: 1.0
+denominator:
+  kind: rate
+  over: typologies expected across the golden alerts
+direction: maximize
+scoring:
+  scale: [0.0, 1.0]
+  pass_if: "score >= threshold"

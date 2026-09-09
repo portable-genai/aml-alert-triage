@@ -16,6 +16,7 @@ commands work; without an install, prefix with `PYTHONPATH=src`.
 
 | Script | What it does |
 |---|---|
+| `render_evals_doc.py` | Regenerates the derived half of `docs/evals.md` from the rubrics and the golden set (`make evals-doc`). `--check` runs inside `make gate`, so a bar that moved without the page being re-rendered fails the build instead of leaving a reader a page that quietly stopped being true. |
 | `demo.py` | The scripted arc, driving the REAL services over the `local` profile: bind the stack, triage a routine case, triage a consequential one and route it (rule R8), plant a national id and prove it is masked before the audit write, show the reviewer's queue, verify and export the audit trail, rewrite a record and detect it, then swap to the exit profile and watch every seam refuse. Writes the audit-view JSON. |
 | `render_ui.py` | Renders that JSON to dependency-free static HTML: one page per step plus a full-run index, in the audit-first layout (result, evidence, figures, findings, next actions). Good for screenshots. |
 | `demo_server.py` | The same run, live: a loopback stdlib HTTP server that advances the ACTUAL service one step per click and re-renders the same output view. Nothing is pre-recorded. |

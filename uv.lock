@@ -10,8 +10,8 @@ resolution-markers = [
 
 [[package]]
 name = "agent-eval-kit"
-version = "0.0.1"
-source = { git = "https://github.com/portable-genai/agent-eval-kit?rev=v0.0.1#a79f0afd125ba81c0fec001f9617f9473d6d7ec1" }
+version = "0.0.2"
+source = { git = "https://github.com/portable-genai/agent-eval-kit?rev=v0.0.2#0d515d736887e5bd4c3026f5c22bffc89afe7281" }
 dependencies = [
     { name = "httpx" },
 ]
@@ -46,7 +46,7 @@ gcp = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agent-eval-kit", git = "https://github.com/portable-genai/agent-eval-kit?rev=v0.0.1" },
+    { name = "agent-eval-kit", git = "https://github.com/portable-genai/agent-eval-kit?rev=v0.0.2" },
     { name = "google-auth", marker = "extra == 'gcp'", specifier = ">=2.0" },
     { name = "google-cloud-bigquery", marker = "extra == 'gcp'", specifier = ">=3.0" },
     { name = "google-cloud-discoveryengine", marker = "extra == 'gcp'", specifier = ">=0.11" },

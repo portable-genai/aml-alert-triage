@@ -8,3 +8,40 @@
 {"alert_id": "FCC-1002", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": []}
 {"alert_id": "FCC-1003", "expected_band": "critical", "expected_recommendation": "escalate_sar", "expected_typologies": ["rapid_movement", "mule_fanout"]}
 {"alert_id": "FCC-1004", "expected_band": "medium", "expected_recommendation": "request_info", "expected_typologies": ["funnel_account"]}
+
+# --------------------------------------------------------------------------------------- #
+# The SUPPRESSION corpus: alerts a hand-review says should CLOSE.
+#
+# This is the eval that carries the whole business case, and there was no corpus for it. The
+# pitch for alert triage is not "it finds the structuring case", which the monitoring rule
+# already did; it is "it closes the alerts that should never have reached an investigator".
+# Nothing measured that, because the golden set held ONE clean alert against three that
+# escalate, and a false-positive rate over one negative is not a rate.
+#
+# Eight benign patterns, each benign for a DIFFERENT reason, because a suppression metric over
+# one shape of clean alert proves only that the engine can close that shape. Every label is a
+# hand-review's answer, written before the engine was run and NOT adjusted afterwards.
+#
+# Two of the eight do not close today, and both are recorded rather than relabelled:
+#
+#   FCC-2001  a monthly salary run to eight employees fires the fan-out rule and escalates. A
+#             salary run is structurally identical to a mule fan-out in transaction data alone;
+#             telling them apart needs counterparty context (payee role) the engine does not
+#             have.
+#   FCC-2004  an intra-group treasury sweep, out and back to the SAME counterparty next day,
+#             fires the rapid-movement rule. Pass-through layering and a treasury sweep differ
+#             by whether the counterparty is the same legal group, which is again context the
+#             window does not carry.
+#
+# Those two are why `suppression_rate` is gated at the measured baseline rather than at a number
+# somebody would like: the bar records where the engine is, and moves when it regresses. The
+# rubric names the target and what would have to change to reach it.
+# --------------------------------------------------------------------------------------- #
+{"alert_id": "FCC-2001", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "monthly salary run to eight employees"}
+{"alert_id": "FCC-2002", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "settlement to a long-standing supplier"}
+{"alert_id": "FCC-2003", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "scheduled round-value loan repayment"}
+{"alert_id": "FCC-2004", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "intra-group treasury sweep, returned next day"}
+{"alert_id": "FCC-2005", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "seasonal turnover spike from the usual customers"}
+{"alert_id": "FCC-2006", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "one large inbound credit that was not moved on"}
+{"alert_id": "FCC-2007", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "dormant account transacting with a known counterparty"}
+{"alert_id": "FCC-2008", "expected_band": "low", "expected_recommendation": "close", "expected_typologies": [], "should_close": true, "benign_pattern": "single large outflow to a government body"}

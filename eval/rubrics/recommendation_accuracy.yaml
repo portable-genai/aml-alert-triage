@@ -1,0 +1,25 @@
+# Scored by: eval/run_eval.py against the golden case's own expected recommendation, written by a
+# hand-review of the fixtures and never copied from pipeline output.
+#
+# 0.80 was chosen when the corpus held four alerts, where it was arithmetically identical to 1.0:
+# a 0.80 bar tolerates one miss only over five. The corpus now holds twelve, so the bar is
+# expressible for the first time, and it reads 0.833 rather than 1.000 because the suppression
+# corpus contains two benign patterns the engine escalates. That drop is the corpus working.
+metric: recommendation_accuracy
+description: >
+  The recommendation the engine reaches equals the one a hand-review assigned, across escalating
+  and closing alerts alike.
+threshold: 0.80
+applies_to:
+  - TriageResult.recommendation
+criteria:
+  - id: matches_the_reviewer
+    description: The recommendation equals the golden expectation.
+    weight: 1.0
+denominator:
+  kind: rate
+  over: golden alerts
+direction: maximize
+scoring:
+  scale: [0.0, 1.0]
+  pass_if: "score >= threshold"
