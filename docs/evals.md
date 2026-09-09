@@ -58,7 +58,7 @@ it is rather than the rule being guessed from the number.
 | Metric | Bar | Denominator | What it measures |
 |---|---|---|---|
 | `groundedness` | 1 | all or nothing | The triage narrative states no number the engine did not compute. |
-| `pii_safety` | 0.99 | all or nothing | No raw identifier survives into any audit record, checked by the shared pack and by an independent planted literal. |
+| `pii_safety` | 1 | all or nothing | No raw identifier survives into any audit record, checked by the shared pack and by an independent planted literal. |
 | `recommendation_accuracy` | 0.8 | a rate; needs 5 positives | The recommendation the engine reaches equals the one a hand-review assigned, across escalating and closing alerts alike. |
 | `review_safety` | 1 | all or nothing | Every triage outcome requires human review and routes to the review console. |
 | `suppression_rate` | 0.75 | a rate; needs 4 positives | Share of the alerts a hand-review marked as should-close that the engine actually recommends closing. The false-positive rate, from the investigator's side. |
