@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 from ..domain.models import Alert, TriageAssessment, TypologyHit
@@ -54,14 +56,18 @@ class TriageResponse(BaseModel):
     narrative: str
     requires_human_review: bool
     #: Where the escalation WENT (rule R8): the human-review-console review id, or the local queue
-    #: reference.
-    #: Every outcome in this vertical routes, so this is never empty on a completed triage.
+    #: reference. Empty exactly when ``review_routing`` is not ``routed``.
     review_ref: str = ""
+    #: What happened to the hand-off: routed, failed, off or not_required. ``failed`` means the
+    #: result is NOT queued for review, and the console says so.
+    review_routing: Literal["routed", "failed", "off", "not_required"] = "not_required"
     typology_hits: list[TypologyHitModel] = []
     citations: list[CitationModel] = []
 
     @classmethod
-    def from_domain(cls, result: TriageAssessment, *, review_ref: str = "") -> TriageResponse:
+    def from_domain(
+        cls, result: TriageAssessment, *, review_ref: str = "", review_routing: str = "not_required"
+    ) -> TriageResponse:
         return cls(
             alert_id=result.alert_id,
             subject=result.subject,
@@ -72,6 +78,7 @@ class TriageResponse(BaseModel):
             narrative=result.narrative,
             requires_human_review=result.requires_human_review,
             review_ref=review_ref,
+            review_routing=review_routing,  # type: ignore[arg-type]
             typology_hits=[TypologyHitModel.from_domain(h) for h in result.typology_hits],
             citations=[
                 CitationModel(source_id=c.source_id, title=c.title, snippet=c.snippet)

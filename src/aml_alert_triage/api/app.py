@@ -67,6 +67,7 @@ from hex_service_kit.web import (
     make_require_service_caller,
 )
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import (
     LOCAL_PROFILE,
     Container,
@@ -302,10 +303,13 @@ def triage(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"no alert {request.alert_id!r}"
         ) from exc
     result = container.triage_service().triage(alert, actor=principal.actor)
-    review_ref = container.review_router.route(
-        result, maker=principal.actor, tenant=principal.tenant
+    # The hand-off never fails an already-scored, already-audited triage; the response says
+    # what happened to it instead (the fleet's runtime-control contract).
+    routing = RecordingReviewRouter(container.review_router)
+    review_ref = routing.route(result, maker=principal.actor, tenant=principal.tenant)
+    return TriageResponse.from_domain(
+        result, review_ref=review_ref, review_routing=routing.outcome.value
     )
-    return TriageResponse.from_domain(result, review_ref=review_ref)
 
 
 @app.get("/v1/alerts", response_model=list[AlertSummary], tags=["artifacts"])
