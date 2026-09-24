@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any
 from hex_service_kit.serialization import to_jsonable
 from pii_kit import redact
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import Container, Settings, build_container
 from ..domain.pii import PII_PATTERNS
 
@@ -75,13 +76,15 @@ def _triage(alert_id: str, actor: str, tenant: str, settings: Settings | None) -
         raise ValueError(str(exc)) from exc
     result = container.triage_service().triage(alert, actor=actor)
     # Every outcome is consequential and routes to a human (rule R8), in the same call.
-    review_ref = container.review_router.route(result, maker=actor, tenant=tenant)
+    routing = RecordingReviewRouter(container.review_router)
+    review_ref = routing.route(result, maker=actor, tenant=tenant)
     payload = _redacted(to_jsonable(result))
     if not isinstance(payload, dict):  # pragma: no cover - dataclasses serialise to objects
         raise TypeError("a triage result must serialise to a JSON object")
     # Attached after the redaction pass: it is a routing reference, not narrative text, and
     # masking an identifier would break the caller's ability to look the review up.
     payload["review_ref"] = review_ref
+    payload["review_routing"] = routing.outcome.value
     return payload
 
 
