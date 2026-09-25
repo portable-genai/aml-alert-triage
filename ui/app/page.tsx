@@ -28,6 +28,13 @@ function reviewRoutingOf(body: string): string | undefined {
   }
 }
 
+// One row of the tenant's open-alert queue, as `GET /v1/alerts` returns it.
+interface AlertSummary {
+  alert_id: string;
+  subject: string;
+  opened: string;
+}
+
 interface CardSummary {
   name?: string;
   description?: string;
@@ -36,8 +43,9 @@ interface CardSummary {
 
 export default function Home() {
   const [persona, setPersona] = useState(PERSONAS[0]);
-  const [subject, setSubject] = useState("Acme Holdings (FICTIONAL)");
-  const [text, setText] = useState("urgent data breach reported by the branch");
+  const [alerts, setAlerts] = useState<AlertSummary[] | null>(null);
+  const [queueError, setQueueError] = useState("");
+  const [alertId, setAlertId] = useState("");
   const [result, setResult] = useState("");
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -57,6 +65,32 @@ export default function Home() {
     };
   }, []);
 
+  // The queue is the persona's own tenant's, so it is re-read whenever the persona changes. The
+  // console triages an alert by id and never sends transactions: the feed and the warehouse
+  // supply the rows, which is the whole of `TriageRequest`.
+  useEffect(() => {
+    let live = true;
+    setAlerts(null);
+    setQueueError("");
+    setResult("");
+    fetch(API + "/v1/alerts", { cache: "no-store", headers: { "X-Dev-Persona": persona } })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(response.status + " " + (await response.text()));
+        return (await response.json()) as AlertSummary[];
+      })
+      .then((queue) => {
+        if (!live) return;
+        setAlerts(queue);
+        setAlertId(queue[0]?.alert_id ?? "");
+      })
+      .catch((error: unknown) => {
+        if (live) setQueueError(String(error));
+      });
+    return () => {
+      live = false;
+    };
+  }, [persona]);
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -65,7 +99,7 @@ export default function Home() {
       const response = await fetch(API + "/v1/triage", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Dev-Persona": persona },
-        body: JSON.stringify({ subject, text }),
+        body: JSON.stringify({ alert_id: alertId }),
       });
       const body = await response.text();
       setFailed(!response.ok);
@@ -83,7 +117,7 @@ export default function Home() {
       <h1>{card?.name ?? "Agent console"}</h1>
       <p className="sub">
         {card?.description ??
-          "Submit a case. The decision is deterministic, cited, and routed to a human reviewer when it escalates."}
+          "Triage an open alert. The decision is deterministic, cited, and routed to a human reviewer."}
       </p>
 
       <form onSubmit={submit}>
@@ -102,17 +136,27 @@ export default function Home() {
         </fieldset>
 
         <fieldset>
-          <legend>The case</legend>
+          <legend>Open alerts</legend>
+          {queueError ? <p className="result error">Could not read the alert queue: {queueError}</p> : null}
+          {alerts && alerts.length === 0 ? (
+            <p className="sub">No open alerts in this persona&apos;s tenant.</p>
+          ) : null}
           <label>
-            Subject
-            <input value={subject} onChange={(event) => setSubject(event.target.value)} />
+            Alert
+            <select
+              value={alertId}
+              disabled={!alerts || alerts.length === 0}
+              onChange={(event) => setAlertId(event.target.value)}
+            >
+              {(alerts ?? []).map((alert) => (
+                <option key={alert.alert_id} value={alert.alert_id}>
+                  {alert.alert_id}: {alert.subject} (opened {alert.opened})
+                </option>
+              ))}
+            </select>
           </label>
-          <label>
-            Description
-            <textarea value={text} onChange={(event) => setText(event.target.value)} />
-          </label>
-          <button type="submit" disabled={busy}>
-            {busy ? "Working" : "Triage this case"}
+          <button type="submit" disabled={busy || !alertId}>
+            {busy ? "Working" : "Triage this alert"}
           </button>
         </fieldset>
       </form>
