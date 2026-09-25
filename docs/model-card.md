@@ -64,9 +64,10 @@ Nothing below claims a model that has been evaluated in this repo.
 - **R8: every outcome is routed, not merely flagged.** `requires_human_review` is unconditionally
   true on every `TriageAssessment`, including a proposed CLOSE, and the API, the CLI and the agent
   tool each call `ReviewRouterPort.route` in the same call that produced the result, returning a
-  `review_ref`. CRITICAL demands two approvals (`adapters/_review_payload.py`). The managed router
-  REFUSES when no console is configured rather than swallowing the escalation, and the on-prem
-  placeholder refuses rather than dropping it. `tests/unit/test_review_routing.py` is the standing
+  `review_ref`. CRITICAL demands two approvals (`adapters/_review_payload.py`). Under the managed
+  profile the service refuses to boot with routing on and no console configured, a failed hand-off
+  is reported as `review_routing: "failed"` and logged rather than swallowed, and the on-prem
+  placeholder refuses rather than dropping it. `AMLTRIAGE_REVIEW_ROUTING=off` switches routing off. `tests/unit/test_review_routing.py` is the standing
   gate. The system never files a SAR and never closes an alert autonomously.
 
 ## Adapters and profiles

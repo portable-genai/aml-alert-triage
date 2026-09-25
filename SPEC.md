@@ -30,8 +30,10 @@ Locked decisions, pinned stack, contracts. This document is the deepest authorit
   terminates at a human disposition. Every triage sets `requires_human_review=True` AND is routed
   through `ReviewRouterPort` to the `human-review-console` in the same request, including a proposed CLOSE:
   the system never files a SAR and never closes an alert autonomously. The flag alone is not the
-  escalation. The response carries `review_ref`. The managed adapter refuses to run with no console
-  configured rather than swallowing the escalation.
+  escalation. The response carries `review_ref` and `review_routing` (`routed`, `failed`, `off`,
+  `not_required`). Under the managed profile the service refuses to boot with routing on and no
+  console configured; `AMLTRIAGE_REVIEW_ROUTING=off` is the stated way to run without routing. A
+  hand-off that fails at request time does not fail the triage: it reports `failed` and is logged.
 - **Profile**: resolved ONCE, at import, into a `ProfileChoice` and never a bare string. Three
   states of `AMLTRIAGE_PROFILE`: UNSET is NO CHOICE (the SDK-free adapters
   still bind, but the seeded personas are refused, no service-to-service scheme is selected, every
