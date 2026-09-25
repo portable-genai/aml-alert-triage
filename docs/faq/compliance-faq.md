@@ -14,8 +14,11 @@ console in the same call that produced it (dependency rule R8), including a prop
 flag alone is not the escalation: `tests/unit/test_review_routing.py` asserts the routing, and
 `test_even_a_low_band_close_is_routed` is the case that matters, because a system that only routed
 the alarming outcomes would be auto-dispositioning the quiet ones. A CRITICAL band demands two
-approvals. The managed router REFUSES to run with no console configured rather than swallowing an
-escalation, and the on-prem placeholder refuses rather than dropping it. **The system never files a
+approvals. Under the managed profile the service refuses to boot with routing on and no console
+configured, a hand-off that fails at request time is reported as `review_routing: "failed"` and
+logged rather than swallowed, and the on-prem placeholder refuses rather than dropping it.
+`AMLTRIAGE_REVIEW_ROUTING=off` switches routing off; the startup log and every result's
+`review_routing: "off"` say so. **The system never files a
 suspicious-activity report and never closes an alert.**
 
 ### Is the decision explainable to a second line or a regulator?
