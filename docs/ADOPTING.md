@@ -186,9 +186,10 @@ what is still a stub differ, so both are stated:
   `AMLTRIAGE_QUALITY_URL`. Registering that bundle and its thresholds with `model-quality-gate` is your step; the
   offline `--mode smoke` gate mirrors them.
 - `agent-observability` and immutable WORM audit: `adapters/gcp/tracer.py` sends OTLP to the
-  `agent-observability` collector when `OTEL_EXPORTER_OTLP_ENDPOINT` is set and to Cloud Trace when it is not.
-  Spans carry structural attributes only, never alert content. The WORM audit half is local and
-  hash-chained today (`adapters/local/audit.py`); pointing it at the shared sink is your step.
+  `agent-observability` collector named by `OTEL_EXPORTER_OTLP_ENDPOINT`, and refuses to trace when
+  it is unset: there is no direct Cloud Trace path. Spans carry structural attributes only, never
+  alert content. The WORM audit half is local and hash-chained today (`adapters/local/audit.py`);
+  pointing it at the shared sink is your step.
 - `human-review-console` human-review and maker-checker console: fully wired, and the one rule this repo does
   not owe you. Every triage sets `requires_human_review` AND routes through `ReviewRouterPort` to
   the console over the shared `review-kit` in the same call (rule R8), with the payload
